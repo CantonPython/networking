@@ -1,10 +1,6 @@
 
 import time
 
-class GameServer:
-    def __init__(self):
-        self.players = {}
-
 class Player:
     def __init__(self, server, username):
         if username in server.players:
@@ -16,6 +12,10 @@ class Player:
         self.score = 0
         self.joined = time.time()
         server.players[username] = self
+
+class GameServer:
+    def __init__(self):
+        self.players = {}
 
 server = GameServer()
 

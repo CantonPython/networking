@@ -16,16 +16,6 @@ class WebHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(response.encode('utf-8'))
 
-class GameServer:
-    def __init__(self):
-        self.players = {}
-        self.http_server = http.server.HTTPServer((HOST, PORT), WebHandler)
-
-    def run(self):
-        self.started = time.time()
-        print('Use control-c to stop...')
-        self.http_server.serve_forever()
-
 class Player:
     def __init__(self, server, username):
         if username in server.players:
@@ -37,6 +27,16 @@ class Player:
         self.score = 0
         self.joined = time.time()
         server.players[username] = self
+
+class GameServer:
+    def __init__(self):
+        self.players = {}
+        self.http_server = http.server.HTTPServer((HOST, PORT), WebHandler)
+
+    def run(self):
+        self.started = time.time()
+        print('Use control-c to stop...')
+        self.http_server.serve_forever()
 
 server = GameServer()
 
