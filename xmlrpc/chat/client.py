@@ -7,8 +7,13 @@ print(s.system.listMethods())
 
 print(s.ping())
 
-print(s.login('tycobb'))
-time.sleep(5)
+token = s.login('tycobb', 'secret')
+print('login token:', token)
 
-print(s.login('tycobb'))
+s.post(token, 'hello world')
+time.sleep(1)
 
+for message in s.get(token):
+    print('>', message)
+
+s.logout(token)
