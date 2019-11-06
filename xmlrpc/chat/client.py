@@ -1,19 +1,23 @@
-import xmlrpc.client
 import time
+import sys
+import xmlrpc.client
 
-s = xmlrpc.client.ServerProxy('http://localhost:8000')
-# Print list of available methods
-print(s.system.listMethods())
+url = 'http://100.115.92.205:8000'
+s = xmlrpc.client.ServerProxy(url)
 
-print(s.ping())
+name = sys.argv[1]
+token = s.login(name, 'secret')
 
-token = s.login('tycobb', 'secret')
-print('login token:', token)
-
-s.post(token, 'hello world')
-time.sleep(1)
-
-for message in s.get(token):
-    print('>', message)
+print('Enter "quit" to quit.')
+while True:
+    for message in s.get(token):
+        print(message)
+    message = input('> ')
+    if message == 'quit':
+        break
+    if message:
+        s.post(token, message)
+    else:
+        time.sleep(1)
 
 s.logout(token)

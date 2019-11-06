@@ -1,6 +1,6 @@
 # Demo chat server with xmlrpc
 
-import secrets
+import os
 import time
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
@@ -23,7 +23,7 @@ class ChatServer:
             session = self.sessions[token]
             if name == session['name']:
                 return session['token']
-        token = secrets.token_urlsafe(16)
+        token = os.urandom(16).hex()
         self.sessions[token] = {
             'token': token,
             'name': name,
@@ -37,10 +37,12 @@ class ChatServer:
         return 0
 
     def post(self, token, message):
+        name = self.sessions[token]['name']
+        msg = '({0}) {1}'.format(name, message)
         for key in self.sessions:
             if token != key:
                 session = self.sessions[key]
-                session['msg'].append(message)
+                session['msg'].append(msg)
         return 0
 
     def get(self, token):
@@ -52,10 +54,11 @@ class ChatServer:
         return msg
 
 def main():
-    with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as server:
-        server.register_introspection_functions()
-        server.register_instance(ChatServer())
-        server.serve_forever()
+    addr = ('100.115.92.205', 8000)
+    server = SimpleXMLRPCServer(addr, requestHandler=RequestHandler)
+    server.register_introspection_functions()
+    server.register_instance(ChatServer())
+    server.serve_forever()
 
 if __name__ == '__main__':
     main()
