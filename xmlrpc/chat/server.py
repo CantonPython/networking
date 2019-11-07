@@ -4,12 +4,6 @@ import os
 import time
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
-from pprint import pprint
-
-
-# Restrict path.
-class RequestHandler(SimpleXMLRPCRequestHandler):
-    rpc_paths = ('/RPC2',)
 
 class ChatServer:
     def __init__(self):
@@ -28,7 +22,7 @@ class ChatServer:
             'token': token,
             'name': name,
             'start': time.time(),
-            'msg': ['welcome'],
+            'messages': [('server', 'welcome')],
         }
         return token
 
@@ -38,24 +32,19 @@ class ChatServer:
 
     def post(self, token, message):
         name = self.sessions[token]['name']
-        msg = '({0}) {1}'.format(name, message)
-        for key in self.sessions:
-            if token != key:
-                session = self.sessions[key]
-                session['msg'].append(msg)
+        for session in self.sessions.values():
+            session['messages'].append((name, message))
         return 0
 
     def get(self, token):
-        msg = []
-        if token in self.sessions:
-            session = self.sessions[token]
-            msg = session['msg']
-            session['msg'] = []
-        return msg
+        session = self.sessions[token]
+        messages = session['messages']
+        session['messages'] = []
+        return messages
 
 def main():
-    addr = ('100.115.92.205', 8000)
-    server = SimpleXMLRPCServer(addr, requestHandler=RequestHandler)
+    addr = ('localhost', 8000)
+    server = SimpleXMLRPCServer(addr, requestHandler=SimpleXMLRPCRequestHandler)
     server.register_introspection_functions()
     server.register_instance(ChatServer())
     server.serve_forever()
